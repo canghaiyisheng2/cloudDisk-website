@@ -1,12 +1,15 @@
+CREATE DATABASE clouddisk;
+
 CREATE TABLE usrinfo(
     uuid varchar(40),
     usrname varchar(50),
     pwd varchar(20),
-    auth varchar(10),
+    auth varchar(10) DEFAULT 'user',
+    avatar varchar(10) DEFAULT NULL,
     primary key(uuid)
 )default charset=utf8;
 
-insert into usrinfo VALUES('admin','123','admin');
+insert into usrinfo VALUES('001','admin','123','admin',null);
 
 CREATE TABLE fileinfo(
     fno numeric(20),
