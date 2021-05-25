@@ -1,5 +1,7 @@
 package org.CloudDisk.Controller;
 
+import com.sun.deploy.net.HttpResponse;
+import com.sun.xml.internal.ws.server.ServerRtException;
 import org.CloudDisk.Service.FileService;
 import org.CloudDisk.Utils.PageUtil;
 import org.CloudDisk.Utils.responseObj;
@@ -44,6 +46,12 @@ public class UploadAndDownloadController {
     @RequestMapping("/downloads")
     public void download(@RequestParam("para") int para, HttpSession session, HttpServletResponse response){
         fileService.download(para, session, response);
+    }
+
+    @RequestMapping("/avatar")
+    @ResponseBody
+    public void avatar(@RequestParam("path")String path, HttpSession session, HttpServletResponse response){
+        fileService.avatar(path,session,response);
     }
 
     @ResponseBody

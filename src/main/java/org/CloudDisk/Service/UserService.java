@@ -5,6 +5,7 @@ import org.CloudDisk.Utils.responseObj;
 import org.CloudDisk.pojo.User;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
@@ -21,6 +22,8 @@ public class UserService {
 
     @Autowired
     UserDao userDao;
+    @Value("${spring.http.multipart.location}")
+    String uploadDir;
 
     @Transactional
     public String modifyUserName(String newName ,HttpSession session){
@@ -40,12 +43,9 @@ public class UserService {
         String fileUser = (String) session.getAttribute("userName"); //上传文件用户
         String fileName = multipartFile.getOriginalFilename();
         String filePath = null;
-        try {
-            filePath = ResourceUtils.getURL("classpath:").getPath() + "static/avatar/";
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        File temp = new File(filePath);
+        filePath ="avatar/";
+        System.out.println(filePath);
+        File temp = new File(uploadDir + filePath);
         if (!temp.exists()) {
             temp.mkdirs();
         }
@@ -65,7 +65,6 @@ public class UserService {
         try {
             multipartFile.transferTo(localFile); //把上传的文件保存至本地
             userDao.updateAvatar(fileUser, suffix);
-            System.out.println(fileName + " 上传成功");
         } catch (Exception e) {
             e.printStackTrace();
             return new responseObj("fail", "上传失败").toJson();

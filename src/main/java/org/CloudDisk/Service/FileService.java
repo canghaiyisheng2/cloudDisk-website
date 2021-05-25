@@ -7,6 +7,7 @@ import org.CloudDisk.pojo.User;
 import org.CloudDisk.pojo.upFile;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,8 @@ public class FileService {
     upFileDao upFileDao;
     @Autowired
     UserDao userDao;
+    @Value("${spring.http.multipart.location}")
+    String uploadDir;
 
     public String UploadFile(MultipartFile multipartFile, Date date, String msg, HttpSession session) {
 
@@ -48,12 +51,9 @@ public class FileService {
         if (multipartFile.isEmpty()) {
             return "未选择文件";
         }
-        try {
-            filePath = ResourceUtils.getURL("classpath:").getPath() + "/upload/" + fileUserUid + "/";
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        File temp = new File(filePath);
+        filePath = "upload/" + fileUserUid + "/";
+        File temp = new File(uploadDir + filePath);
+        System.out.println(uploadDir);
         if (!temp.exists()) {
             temp.mkdirs();
         }
@@ -106,9 +106,45 @@ public class FileService {
         FileInputStream fis = null;
         ServletOutputStream out = null;
         try {
-            String filePath = ResourceUtils.getURL("classpath:").getPath()+upFile.getPath();
+            String filePath = uploadDir + upFile.getPath();
             response.setContentType("multipart/form-data");
             response.setHeader("Content-Disposition", "attachment;fileName="+ upFile.getName());
+            File file = new File(filePath);
+            fis = new FileInputStream(file);
+            out = response.getOutputStream();
+
+            byte[] buffer = new byte[512];
+            int b = 0;
+            while(b!=-1){
+                b = fis.read(buffer);
+                if(b != -1){
+                    out.write(buffer,0,b);//写到输出流(out)中
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try{
+                if(fis!=null){
+                    fis.close();
+                }
+                if(out!=null){
+                    out.close();
+                    out.flush();
+                }
+            }catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void avatar(String path, HttpSession session, HttpServletResponse response){
+        String curUser = (String)session.getAttribute("uid");
+        FileInputStream fis = null;
+        ServletOutputStream out = null;
+        try {
+            String filePath = uploadDir + "avatar/" + path;
             File file = new File(filePath);
             fis = new FileInputStream(file);
             out = response.getOutputStream();
