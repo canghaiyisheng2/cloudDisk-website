@@ -6,7 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface upFileDao extends JpaRepository<upFile,Integer> {
-    @Query(value = "select f from upFile f where f.usr=?1")
-    public Page<upFile> findAll(String uid, Pageable pageable);
+
+    @Query(value = "select * from fileinfo where path=?",nativeQuery = true)
+    public List<upFile> findByPath(int path);
 }

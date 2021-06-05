@@ -4,12 +4,15 @@ import com.google.gson.Gson;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity
 @Table(name = "fileinfo")
-public class upFile {
+public class upFile implements Serializable {
 
+    @Transient
+    String type = "file";
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "fno")
@@ -22,6 +25,10 @@ public class upFile {
     String msg;
     @Column(name = "fusr")
     String usr; //uid
+    @Column(name = "path")
+    int path;
+    @Column(name = "token")
+    String token;
 
     public int getNo() {
         return no;
@@ -63,7 +70,23 @@ public class upFile {
         this.usr = usr;
     }
 
-    public String getPath(){
+    public int getPath() {
+        return path;
+    }
+
+    public void setPath(int path) {
+        this.path = path;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getFilePath(){
         String suffix = "." + FilenameUtils.getExtension(name);
         return "/upload/" + usr + "/" + no + suffix;
     }

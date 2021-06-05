@@ -22,6 +22,8 @@ public class User {
 	private String auth;
 	@Column(name = "avatar")
 	private String avatar;
+	@Column(name = "dirno")
+	private int dirNo;
 
 	public String getUuid() {
 		return uuid;
@@ -61,6 +63,14 @@ public class User {
 
 	public void setAvatar(String avatar) {
 		this.avatar = avatar;
+	}
+
+	public int getDirNo() {
+		return dirNo;
+	}
+
+	public void setDirNo(int dirNo) {
+		this.dirNo = dirNo;
 	}
 
 	public String toJson() {

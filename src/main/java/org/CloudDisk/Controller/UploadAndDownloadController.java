@@ -15,7 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Controller
 public class UploadAndDownloadController {
@@ -32,31 +34,27 @@ public class UploadAndDownloadController {
         return fileService.UploadFile(multipartFile,date,msg,session);
     }
 
-    @ResponseBody
-    @GetMapping("/getFileList")
-    public String getFileList(@RequestParam(value = "p",required=false,defaultValue = "0") int page,
-                              @RequestParam(value = "size",required=false,defaultValue = "10") int size,
-                              HttpSession session){
-        Page<upFile> p = fileService.getFileList(page ,size ,session);
-        if (page!=0 && page >= p.getTotalPages())
-            return new responseObj("fail","wrong page request").toJson();
-        return new responseObj("success", new PageUtil(p).toJson()).toJson();
+
+    @RequestMapping("/download")
+    public void download(@RequestParam("no") int fno,
+                         @RequestParam(value = "token", required = false, defaultValue = "")String token,
+                         HttpSession session, HttpServletResponse response){
+        fileService.download(fno, token, session, response);
     }
 
-    @RequestMapping("/downloads")
-    public void download(@RequestParam("para") int para, HttpSession session, HttpServletResponse response){
-        fileService.download(para, session, response);
+
+    @PostMapping("/upavatar")
+    @ResponseBody
+    public String UpAvatar(@RequestParam("file") MultipartFile multipartFile,
+                           HttpSession session){
+        return fileService.UploadAvatar(multipartFile, session);
     }
 
     @RequestMapping("/avatar")
     @ResponseBody
-    public void avatar(@RequestParam("path")String path, HttpSession session, HttpServletResponse response){
-        fileService.avatar(path,session,response);
+    public void avatar(@RequestParam("user") String userName,
+                       HttpServletResponse response){
+        fileService.avatar(userName ,response);
     }
 
-    @ResponseBody
-    @RequestMapping("/withdraw")
-    public void withdraw(@RequestParam("para") int para, HttpSession session){
-        fileService.DeleteItembyId(para, session);
-    }
 }

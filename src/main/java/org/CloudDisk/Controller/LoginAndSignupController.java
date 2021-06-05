@@ -36,10 +36,10 @@ public class LoginAndSignupController {
 
     @PostMapping("/signup")
     @ResponseBody
-    public String signup(HttpServletRequest request, @RequestBody HashMap<String,String> map){
+    public String signup(HttpSession session, @RequestBody HashMap<String,String> map){
         String name = map.get("name");
         String passwd = map.get("password");
         System.out.println(name + ' ' + passwd);
-        return lsService.signupCheck(request, name, passwd);
+        return lsService.signupCheck(session, name, passwd);
     }
 }

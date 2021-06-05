@@ -4,12 +4,12 @@ import com.google.gson.Gson;
 
 public class responseObj {
 	String status;
-	String msg;
+	Object msg;
 	
 	public responseObj() {
 	}
 	
-	public responseObj(String stas, String m) {
+	public responseObj(String stas, Object m) {
 		this.status = stas;
 		this.msg = m;
 	}

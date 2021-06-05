@@ -6,31 +6,27 @@ import org.CloudDisk.Utils.responseObj;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
-import java.util.Map;
 
 @Controller
 public class personalCenterController {
 
     @Autowired
     UserService userService;
+    @Autowired
+    FileService fileService;
 
-    @PostMapping("/upavatar")
-    @ResponseBody
-    public String UpAvatar(@RequestParam("file") MultipartFile multipartFile,
-                           HttpSession session){
-        return userService.UploadAvatar(multipartFile, session);
-    }
 
     @PostMapping("/modify")
     @ResponseBody
-    public String modify(@RequestParam("key") String key,
+    public String modify(@RequestParam("type") String type,
                          @RequestParam("value") String value,
                          HttpSession session){
-        if (key.equals("userName"))
+        if (type.equals("username"))
             return userService.modifyUserName(value, session);
+        else if (type.equals("password"))
+            return userService.modifyPassword(value, session);
         return new responseObj("fail", "错误的参数").toJson();
     }
 }

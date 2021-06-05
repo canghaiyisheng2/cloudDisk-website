@@ -20,6 +20,11 @@
   <url>http://www.example.com</url>
 
   <dependencies>
+<!--    rabbitmq-->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-amqp</artifactId>
+    </dependency>
     <!-- springboot web -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
