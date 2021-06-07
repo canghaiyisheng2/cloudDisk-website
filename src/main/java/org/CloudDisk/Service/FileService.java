@@ -3,11 +3,12 @@ package org.CloudDisk.Service;
 import com.google.gson.Gson;
 import javafx.util.Pair;
 import org.CloudDisk.Dao.DirDao;
+import org.CloudDisk.Dao.RecycleBinDao;
 import org.CloudDisk.Dao.UserDao;
 import org.CloudDisk.Dao.upFileDao;
 import org.CloudDisk.Utils.responseObj;
-import org.CloudDisk.pojo.User;
-import org.CloudDisk.pojo.upFile;
+import org.CloudDisk.pojo.*;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +37,8 @@ public class FileService {
     UserDao userDao;
     @Autowired
     DirDao dirDao;
+    @Autowired
+    RecycleBinDao recycleBinDao;
     @Value("${spring.http.multipart.location}")
     String uploadDir;
 
@@ -51,6 +54,7 @@ public class FileService {
         file.setMsg(msg);
         file.setName(filename);
         file.setUsr(fileUserUid);
+        file.setSize(FileUtils.byteCountToDisplaySize(multipartFile.getSize()));
         file.setPath(userDao.getUserPathByUid(fileUserUid));
         file.setToken(UUID.randomUUID().toString()); //利用UUID生成下载token
         file = upFileDao.save(file);
@@ -74,6 +78,29 @@ public class FileService {
         return new responseObj("success","").toJson();
     }
 
+    @Transactional
+    public String NewDir(String name, int path, HttpSession session){
+        String user = (String) session.getAttribute("uid");
+        //验证文件夹归属
+        Dir dir = dirDao.findOne(path);
+        if (dir == null || !dir.getUsr().equals(user))
+            return new responseObj("fail","参数错误").toJson();
+        //新建文件夹
+        Dir newDir = new Dir();
+        newDir.setName(name);
+        newDir.setPath(path);
+        newDir.setUsr(user);
+        newDir.setDate(new Date());
+        dirDao.save(newDir);
+        return new responseObj("success","").toJson();
+    }
+
+    public String getDirList(HttpSession session){
+        String user = (String) session.getAttribute("uid");
+        List<Dir> dirs = dirDao.findAllByUser(user);
+        return new responseObj("success",dirs).toJson();
+    }
+
     public String getItemList(int path, HttpSession session){
         String uid = (String) session.getAttribute("uid");
         String userName = (String) session.getAttribute("userName");
@@ -93,12 +120,12 @@ public class FileService {
             }
             else{
                 if (path < 0){
-//                    //回收站
-//                    items = trashDao.findAllByUser(uid);
-//                    for(Object i : items){
-//                        ((upFile) i).setUsr(userName);
-//                    }
-                    return new responseObj("success","trashbin").toJson();
+                    //回收站
+                    items = recycleBinDao.findAllByUser(uid);
+                    for(Object i : items){
+                        ((RecycleItem) i).setUsr(userName);
+                    }
+                    return new responseObj("success",items).toJson();
                 }
 
                 //判断path是否为对应的用户上传的目录号
@@ -108,7 +135,7 @@ public class FileService {
                 //用户返回用户上传的文件与目录
                 items = dirDao.findByPath(path);
                 for(Object i : items){
-                    ((upFile) i).setUsr(userName);
+                    ((Dir) i).setUsr(userName);
                 }
                 List<upFile> files = upFileDao.findByPath(path);
                 for (upFile f : files){
@@ -119,6 +146,22 @@ public class FileService {
             return new responseObj("success",items).toJson();
         }
         return new responseObj("fail", "该功能需要先登录！").toJson();
+    }
+
+    @Transactional
+    public String moveItem(String type, int no, int srcPath, int desPath, HttpSession session){
+        String user = (String) session.getAttribute("uid");
+        if (type.equals("file")){
+            upFile item = upFileDao.findOne(no);
+            if (item == null || !user.equals(item.getUsr()) || item.getPath()!=srcPath) return new responseObj("fail","参数错误").toJson();
+            upFileDao.updatePathByNo(no, desPath);
+        }
+        else if (type.equals("dir")){
+            Dir item = dirDao.findOne(no);
+            if (item == null || !user.equals(item.getUsr()) || item.getPath()!=srcPath) return new responseObj("fail","参数错误").toJson();
+            dirDao.updatePathByNo(no, desPath);
+        }
+        return new responseObj("success","").toJson();
     }
 
     public void download(int fno, String token, HttpSession session, HttpServletResponse response) {
@@ -238,6 +281,41 @@ public class FileService {
             return new responseObj("fail", "服务器内部错误，上传失败！").toJson();
         }
         return new responseObj("success", "").toJson();
+    }
+
+    @Transactional
+    public String MoveToBin(int no, String type, HttpSession session){
+        String user = (String) session.getAttribute("uid");
+        if (type.equals("file")){
+            upFile item = upFileDao.findOne(no);
+            if (item == null || !user.equals(item.getUsr())) return new responseObj("fail","参数错误").toJson();
+            recycleBinDao.save(new RecycleItem(item));
+            upFileDao.delete(no);
+        }
+        else if (type.equals("dir")){
+            Dir item = dirDao.findOne(no);
+            if (item == null || !user.equals(item.getUsr())) return new responseObj("fail","参数错误").toJson();
+            recycleBinDao.save(new RecycleItem(item));
+            dirDao.delete(no);
+        }
+        else return new responseObj("fail","参数错误").toJson();
+        return new responseObj("success","").toJson();
+    }
+
+    @Transactional
+    public String RestoreFromBin(int no, String type, HttpSession session){
+        String user = (String) session.getAttribute("uid");
+        RecycleItem item = recycleBinDao.findOne(new RecycleItemPK(type,no));
+        if (item == null || !user.equals(item.getUsr()))
+            return new responseObj("fail","参数错误").toJson();
+        if (type.equals("file"))
+            upFileDao.save(new upFile(item));
+        else if (type.equals("dir"))
+            dirDao.save(new Dir(item));
+        else
+            return new responseObj("fail","参数错误").toJson();
+        recycleBinDao.delete(new RecycleItemPK(type, no));
+        return new responseObj("success","").toJson();
     }
 
     public void DeleteItembyId(int id ,HttpSession session){

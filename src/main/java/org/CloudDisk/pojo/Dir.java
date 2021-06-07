@@ -1,11 +1,17 @@
 package org.CloudDisk.pojo;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Table(name = "dirinfo")
-
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Dir {
     @Transient
     String type = "dir";
@@ -22,46 +28,12 @@ public class Dir {
     @Column(name = "path")
     int path;
 
-    public void setNo(int no) {
-        this.no = no;
+    public Dir(RecycleItem item){
+        this.type = item.getType();
+        this.no = item.getNo();
+        this.name = item.getName();
+        this.date = item.getDate();
+        this.usr = item.getUsr();
+        this.path = item.getPath();
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public void setUsr(String usr) {
-        this.usr = usr;
-    }
-
-    public void setPath(int path) {
-        this.path = path;
-    }
-
-    public int getNo() {
-        return no;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public String getUsr() {
-        return usr;
-    }
-
-    public int getPath() {
-        return path;
-    }
-
-
-
 }

@@ -3,13 +3,11 @@ package org.CloudDisk.Service;
 import org.CloudDisk.Config.RabbitmqConfig;
 import org.CloudDisk.Dao.DirDao;
 import org.CloudDisk.Dao.UserDao;
+import org.CloudDisk.Utils.QueueMsg;
 import org.CloudDisk.pojo.Dir;
-import org.CloudDisk.pojo.QueueMsg;
 import org.CloudDisk.pojo.User;
 import org.CloudDisk.Utils.responseObj;
-import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Exchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -18,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import javax.persistence.AttributeOverride;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
 
@@ -80,6 +77,7 @@ public class LoginAndSignupService {
 			newDir.setUsr("");
 			newDir.setPath(0);
 			newDir.setUsr(user.getUuid());
+			newDir.setDate(new Date());
 			dirDao.save(newDir);
 
 			//update dusr in table dirinfo

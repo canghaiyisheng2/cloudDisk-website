@@ -1,9 +1,16 @@
 package org.CloudDisk.pojo;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "friendsinfo")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class FriendMap {
 
     @Id
@@ -16,30 +23,6 @@ public class FriendMap {
 
     @Column(name = "uid2")
     String friendUid;
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setMainUid(String mainUid) {
-        this.mainUid = mainUid;
-    }
-
-    public void setFriendUid(String friendUid) {
-        this.friendUid = friendUid;
-    }
-
-    public String getMainUid() {
-        return mainUid;
-    }
-
-    public String getFriendUid() {
-        return friendUid;
-    }
 
     public FriendMap reverse(){
         FriendMap friendMap = new FriendMap();

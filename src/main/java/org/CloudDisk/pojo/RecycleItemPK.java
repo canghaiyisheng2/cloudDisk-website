@@ -9,9 +9,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatItem implements Serializable {
+public class RecycleItemPK implements Serializable {
     String type;
-    String sender;
-    String date;
-    Object msg;
+    int no;
 }

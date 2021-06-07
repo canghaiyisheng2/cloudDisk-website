@@ -18,6 +18,7 @@ CREATE TABLE fileinfo(
     fdate datetime,
     fmsg varchar(50),
     fusr varchar(40),
+    fsize numeric(15),
     path numeric(20),
     token varchar(40),
     primary key(fno),
@@ -57,3 +58,17 @@ CREATE TABLE requestinfo(
 )default charset=utf8;
 
 alter table requestinfo modify id int auto_increment;
+
+CREATE TABLE recyclebin(
+    type varchar(10),
+    id numeric(20),
+    name varchar(128),
+    uploaddate datetime,
+    usr varchar(40),
+    path numeric(20),
+    fsize numeric(15) DEFAULT NULL,
+    fmsg varchar(50) DEFAULT NULL,
+    token varchar(40) DEFAULT NULL,
+    primary key(type,id),
+    FOREIGN KEY(usr) REFERENCES usrinfo(uuid) ON DELETE CASCADE ON UPDATE CASCADE
+)default charset=utf8;
