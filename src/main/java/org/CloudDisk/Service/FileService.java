@@ -216,7 +216,12 @@ public class FileService {
         FileInputStream fis = null;
         ServletOutputStream out = null;
         try {
-            String filePath = uploadDir + "avatar/" + user.getUuid() + user.getAvatar();
+            String filePath = "";
+            if (user == null || user.getAvatar()==null)
+                filePath = ResourceUtils.getFile("classpath:static/default.png").getAbsolutePath();
+            else{
+                filePath = uploadDir + "avatar/" + user.getUuid() + user.getAvatar();
+            }
             File file = new File(filePath);
             fis = new FileInputStream(file);
             out = response.getOutputStream();

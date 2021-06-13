@@ -55,9 +55,10 @@ public class FriendService {
         String curUid = (String) session.getAttribute("uid");
         if (StringUtils.isEmpty(curUid))
             return new responseObj("fail","未登录").toJson();
-        String friendUid = userDao.findOneByName(userName).getUuid();
-        if (StringUtils.isEmpty(friendUid))
+        User friend = userDao.findOneByName(userName);
+        if (StringUtils.isEmpty(friend))
             return new responseObj("fail","该用户不存在").toJson();
+        String friendUid = friend.getUuid();
         if (friendDao.count(curUid,friendUid) != 0)
             return new responseObj("fail","该用户已经是你的好友").toJson();
 
@@ -65,8 +66,12 @@ public class FriendService {
         friendRequestMap.setMainUid(curUid);
         friendRequestMap.setFriendUid(friendUid);
         friendRequestDao.save(friendRequestMap);
+        
+        Map<String,String> map = new HashMap<>();
+        map.put("uid",curUid);
+        map.put("name",(String) session.getAttribute("userName"));
 
-        QueueMsg queueMsg = new QueueMsg("req", new Date().toString(), curUid);
+        QueueMsg queueMsg = new QueueMsg("req", new Date().toString(), map);
         rabbitTemplate.convertAndSend("inform.msg", friendUid, queueMsg);
         return new responseObj("success","").toJson();
     }
@@ -109,10 +114,17 @@ public class FriendService {
     }
 
     @Transactional
-    public String deleteFriend(String uid, HttpSession session){
+    public String deleteFriend(String userName, HttpSession session){
         String curUid = (String) session.getAttribute("uid");
         if (StringUtils.isEmpty(curUid))
             return new responseObj("fail","未登录").toJson();
+        User friend = userDao.findOneByName(userName);
+        if (friend == null)
+            return new responseObj("fail","用户名不存在").toJson();
+        String uid = friend.getUuid();
+        if(friendDao.count(curUid,uid)==0)
+            return new responseObj("fail","该用户不是你的好友").toJson();
+
         friendDao.deleteByUid(curUid,uid);
         friendDao.deleteByUid(uid,curUid);
 
@@ -145,10 +157,16 @@ public class FriendService {
 //            ChatItem[] chat = new ChatItem[2];
 //            chat[0] = new ChatItem("msg","admin","May 31, 2021 8:23:23 PM","消息");
 //            chat[1] = new ChatItem("file","admin","May 31, 2021 8:23:23 PM",upFileDao.findOne(1));
-//            oos.writeObject(chat);
-            ChatItem[] chatItems = (ChatItem[]) ois.readObject();
+//            oos.writeObject(chat[0]);
+//            oos.writeObject(chat[1]);
+            List<ChatItem> chatItems = new ArrayList<>();
+            ChatItem ci;
+            while((ci = (ChatItem)ois.readObject()) != null)
+                chatItems.add(ci);
             return new responseObj("success",chatItems).toJson();
-        } catch (IOException | ClassNotFoundException e) {
+        }catch (EOFException e){
+            return new responseObj("success",null).toJson();
+        }catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
             return new responseObj("fail","服务器内部错误").toJson();
         }

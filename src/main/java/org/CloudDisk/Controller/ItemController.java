@@ -13,7 +13,7 @@ public class ItemController {
     @Autowired
     FileService fileService;
 
-    @GetMapping("/getFileList")
+    @PostMapping("/getFileList")
     public String getFileList(@RequestParam("path") int path,
                               HttpSession session){
         return fileService.getItemList(path, session);

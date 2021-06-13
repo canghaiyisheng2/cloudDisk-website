@@ -51,7 +51,7 @@ public class LoginAndSignupService {
 		else {
 			String name = (String)session.getAttribute("userName");
 			User user = userDao.findOneByName(name);
-			return new responseObj("success",user.toJson()).toJson();
+			return new responseObj("success",user).toJson();
 		}
 	}
 

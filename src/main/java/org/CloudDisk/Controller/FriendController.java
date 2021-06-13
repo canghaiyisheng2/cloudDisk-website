@@ -24,13 +24,20 @@ public class FriendController {
         return friendService.sendFriRequest(userName, session);
     }
 
+    @PostMapping("/confirm")
+    public String confirmFriReq(@RequestParam("accept")boolean isAccept,
+                                @RequestParam("user")String uid,
+                                HttpSession session){
+        return friendService.confirmFriRequest(isAccept, uid, session);
+    }
+
     @PostMapping("/delFri")
     public String deleteFriend(@RequestParam("user") String uid,
                                HttpSession session){
         return friendService.deleteFriend(uid, session);
     }
 
-    @RequestMapping("/getChatList")
+    @PostMapping("/getChatList")
     public String getCahtList(@RequestParam("user") String uid,
                                HttpSession session){
         return friendService.getChatList(uid, session);

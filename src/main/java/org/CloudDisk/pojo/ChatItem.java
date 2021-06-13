@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -12,6 +13,6 @@ import java.io.Serializable;
 public class ChatItem implements Serializable {
     String type;
     String sender;
-    String date;
+    Date date;
     Object msg;
 }
