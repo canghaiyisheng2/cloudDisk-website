@@ -35,4 +35,7 @@ public class FriendController {
                                HttpSession session){
         return friendService.getChatList(uid, session);
     }
+
+    @PostMapping("/sendMsg")
+    public String sendMsg(@)
 }

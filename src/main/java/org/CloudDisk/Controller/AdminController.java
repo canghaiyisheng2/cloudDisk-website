@@ -23,10 +23,16 @@ public class AdminController {
                              HttpSession session){
         return userService.deleteUser(uid, session);
     }
-    @PostMapping("auth")
+    @PostMapping("/auth")
     public String riseUserAuth(@RequestParam("user") String uid,
                                HttpSession session){
         return userService.riseUserAuth(uid, session);
+    }
+
+    @PostMapping("/broadcast")
+    public String boardcast(@RequestParam("msg") String msg,
+                            HttpSession session) {
+        return userService.MsgBoardcast(msg, session);
     }
 
 
