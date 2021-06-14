@@ -87,6 +87,7 @@ public class LoginAndSignupService {
 			Queue queue = new Queue(user.getUuid(), true);
 			rabbitAdmin.declareQueue(queue);
 			rabbitAdmin.declareBinding(BindingBuilder.bind(queue).to(rabbitmqConfig.MsgExchange()).with(user.getUuid()).noargs());
+			rabbitAdmin.declareBinding(BindingBuilder.bind(queue).to(rabbitmqConfig.BroadExchange()).with("").noargs());
 
 			//发送欢迎消息
 			QueueMsg queueMsg = new QueueMsg("notice",new Date().toString(),"Welcome to our system!");

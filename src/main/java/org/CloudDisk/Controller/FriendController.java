@@ -2,6 +2,7 @@ package org.CloudDisk.Controller;
 
 import org.CloudDisk.Service.FriendService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +43,4 @@ public class FriendController {
                                HttpSession session){
         return friendService.getChatList(uid, session);
     }
-
-    @PostMapping("/sendMsg")
-    public String sendMsg(@)
 }

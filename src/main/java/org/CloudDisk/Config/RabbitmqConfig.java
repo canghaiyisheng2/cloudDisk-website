@@ -31,4 +31,9 @@ public class RabbitmqConfig {
         return new DirectExchange("inform.msg",true,false);
     }
 
+    @Bean
+    public Exchange BroadExchange(){
+        return new FanoutExchange("inform.fanout",true,false);
+    }
+
 }

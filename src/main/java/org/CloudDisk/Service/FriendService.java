@@ -90,10 +90,15 @@ public class FriendService {
 
         if (accept){
             //正式加为好友
-            File chatDir = new File(uploadDir + "chat/" + friendUid + "_" + curUid + ".chat");
-            if (!chatDir.exists()) {
-                try {
-                    chatDir.createNewFile();
+            File chatDir = new File(uploadDir + "chat/");
+            if (!chatDir.exists())
+                chatDir.mkdir();
+            File chatFile = new File(uploadDir + "chat/" + friendUid + "_" + curUid + ".chat");
+            if (!chatFile.exists()) {
+                try (FileOutputStream fos = new FileOutputStream(chatFile);
+                     ObjectOutputStream oos = new ObjectOutputStream(fos);){
+                    chatFile.createNewFile();
+                    oos.writeObject(null);
                 } catch (IOException e) {
                     e.printStackTrace();
                     return new responseObj("fail","服务器内部错误").toJson();
@@ -146,6 +151,7 @@ public class FriendService {
         if (friendDao.count(curUid, uid) == 0)
             return new responseObj("fail","他/她不是你的好友").toJson();
 
+        List<ChatItem> chatItems = new ArrayList<>();
         File chatFile = new File(uploadDir + "chat/" + curUid + "_" + uid + ".chat");
         if (!chatFile.exists())
             chatFile = new File(uploadDir + "chat/" + uid + "_" + curUid + ".chat");
@@ -153,19 +159,14 @@ public class FriendService {
                 FileInputStream fis = new FileInputStream(chatFile);
                 ObjectInputStream ois = new ObjectInputStream(fis);
 
-            ){
-//            ChatItem[] chat = new ChatItem[2];
-//            chat[0] = new ChatItem("msg","admin","May 31, 2021 8:23:23 PM","消息");
-//            chat[1] = new ChatItem("file","admin","May 31, 2021 8:23:23 PM",upFileDao.findOne(1));
-//            oos.writeObject(chat[0]);
-//            oos.writeObject(chat[1]);
-            List<ChatItem> chatItems = new ArrayList<>();
+            ) {
             ChatItem ci;
-            while((ci = (ChatItem)ois.readObject()) != null)
+            ois.readObject();
+            while ((ci = (ChatItem) ois.readObject()) != null)
                 chatItems.add(ci);
-            return new responseObj("success",chatItems).toJson();
+            return new responseObj("success", chatItems).toJson();
         }catch (EOFException e){
-            return new responseObj("success",null).toJson();
+            return new responseObj("success",chatItems).toJson();
         }catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
             return new responseObj("fail","服务器内部错误").toJson();

@@ -1,5 +1,6 @@
 package org.CloudDisk.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,6 @@ import java.util.Date;
 public class ChatItem implements Serializable {
     String type;
     String sender;
-    Date date;
+    String date;
     Object msg;
 }

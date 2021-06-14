@@ -17,13 +17,6 @@ public interface UserDao extends JpaRepository<User, String> {
     @Query(value = "select * from usrinfo,friendsinfo where uid1=? and uuid=uid2", nativeQuery = true)
     public List<User> findFriendsByUid(String uid);
 
-    @Query(value = "select uuid, usrName, auth from usrinfo", nativeQuery = true)
-    public List<User> findallUsers();
-
-    @Query(value = "select uuid, usrName, auth from usrinfo where uuid=?", nativeQuery = true)
-    public User findOneById(String uid);
-
-
     @Modifying
     @Query(value = "update usrinfo set dirno=?2 where uuid=?1", nativeQuery = true)
     public void updateDirNoById(String id, int dirNo);
@@ -45,7 +38,7 @@ public interface UserDao extends JpaRepository<User, String> {
     public void deleteByUid(String uid);
 
     @Modifying
-    @Query(value = "update usrinfo set auth = 'admin' where uuid=?1",nativeQuery = true)
+    @Query(value = "update usrinfo set auth = 'admin', dirno = 0 where uuid=?1",nativeQuery = true)
     public void riseAuth(String uid);
 
 
